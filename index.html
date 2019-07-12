@@ -18,10 +18,9 @@
     <!-- <div class="container"> -->
     <div class="jumbotron jumbotron-fluid"
         style="background-color: rgb(25, 25, 112); color: cornsilk; max-height: 150px">
-    <div class="container">
             <h1 class="display-4">New York Times Search</h1>
     </div>
-    </div>
+    <div class="container"></div>
     <div class='user-interface'>
         <form>
             <div class="form-group">
@@ -64,6 +63,7 @@
         <br>
         <br>
     <h4 id='search-results'></h4>
+    </div>
     </div>
 </body>
 
@@ -140,13 +140,11 @@
             $('#search-results').text('Search Results:')
 
 
-            // Creating a div to hold the articles
-            var articleDiv = $("<div class='article'>");
+            // Loop to iterate over API object results and create new html elements with results
             for (i = 0; i < recordNumber; i++) {
                 var articleHeadline = response.response.docs[i].headline.main;
                 var articleUrl = response.response.docs[i].web_url;
                 console.log(articleHeadline);
-                // Creating a div to hold the headlines & articles
                 var articleDiv = $("<div class='article'>").text(articleHeadline);
                 $('#search-results').append(articleDiv)
 
