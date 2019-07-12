@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>NYT-Search</title>
+    <!--Link to Global Reset & Bootstrap4-->
+    <link rel="stylesheet" type="text/css" href="assets/css/reset.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <!--Link to CSS-->
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css" />
+</head>
+
+<body class='col-10 mx-auto'>
+    <!-- <div class="container"> -->
+    <div class="jumbotron jumbotron-fluid"
+        style="background-color: rgb(25, 25, 112); color: cornsilk; max-height: 150px">
+    <div class="container">
+            <h1 class="display-4">New York Times Search</h1>
+    </div>
+    </div>
+    <div class='user-interface'>
+        <form>
+            <div class="form-group">
+                <label for="searchTerm">Search Term:</label>
+                <input type="text" class="form-control" id="searchTerm" aria-describedby="required"
+                    placeholder="Charlotte">
+                <small id="required" class="form-text text-muted">Required</small>
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="recordNumber">Number of Records to Retrieve:</label>
+                <select class="form-control" id="recordNumber">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="searchStart">Start Year:</label>
+                <input type="text" class="form-control" id="searchStart" aria-describedby="optional" placeholder="1997">
+                <small id="optional" class="form-text text-muted">Optional</small>
+            </div>
+            <br>
+            <div class="form-group">
+                <label for="searchEnd">End Year:</label>
+                <input type="text" class="form-control" id="searchEnd" aria-describedby="optional" placeholder="2018">
+                <small id="optional" class="form-text text-muted">Optional</small>
+            </div>
+            <input type="submit" id='submit-btn'></input>
+        </form>
+        <br>
+        <br>
+        <br>
+    <h4 id='search-results'></h4>
+    </div>
+</body>
+
+
+<!-- JQuery Call-->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+<!-- Javascript Script Call-->
+
+<script>
+
+
+    // Event handler for submit-btn //
+    $('#submit-btn').on("click", function (e) {
+        displayNytSearch(e);
+    });
+
+    function displayNytSearch(e) {
+
+        e.preventDefault()
+        var NytSearch = $('#searchTerm').val().toString();
+        var searchStart = $('#searchStart').val().toString();
+        var searchStartNum = $('#searchStart').val();
+        var searchEnd = $('#searchEnd').val().toString();
+        var searchEndNum = $('#searchEnd').val()
+        var recordNumber = $('#recordNumber').val();
+        var currentTime = new Date()
+        var startDateValid = 0;
+        var endDateValid = 0;
+        console.log("Search Term Value: ", NytSearch);
+        console.log('Record Number Value: ', recordNumber);
+        console.log('Start Year Value: ', searchStart);
+        console.log('End Year Value: ', searchEnd);
+
+
+        // Guardrails:  Guardrail for record # is set in the form only allowing 1-10 responses, guardrail for start/end date requires responses between 2013 and current year plus 1
+        if (searchStartNum > 1913 && searchStartNum <= currentTime.getFullYear()) {
+            startDateValid = 1;
+        };
+        if (searchEndNum > 1913 && searchEndNum <= currentTime.getFullYear()) {
+            endDateValid = 1;
+        };
+
+        // !!! DYNAMIC DEFINITION OF QUERYURL IN API CALL !!! //
+        // Standard API Call URL -- var queryUrl = 'https://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + NytSearch + '&api-key=HKQZkfUdBhsAbKbMGwTdyQRgGlSGWDfw';
+        // Date Adjusted Query --  var queryUrl = 'https://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + NytSearch + '&facet_fields=source&facet=true&begin_date='+ searchStart+ '0101&end_date=' + searchEnd + '1231&api-key=HKQZkfUdBhsAbKbMGwTdyQRgGlSGWDfw';
+
+        var queryUrl = 'https://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + NytSearch + '&api-key=HKQZkfUdBhsAbKbMGwTdyQRgGlSGWDfw';
+
+        if (startDateValid === 1 && endDateValid === 1) {
+            queryUrl = 'https://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + NytSearch + '&facet_fields=source&facet=true&begin_date=' + searchStart + '0101&end_date=' + searchEnd + '1231&api-key=HKQZkfUdBhsAbKbMGwTdyQRgGlSGWDfw';
+        }
+        else if (startDateValid === 1 && endDateValid === 0) {
+            queryUrl = 'https://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + NytSearch + '&facet_fields=source&facet=true&begin_date=' + searchStart + '0101&api-key=HKQZkfUdBhsAbKbMGwTdyQRgGlSGWDfw';
+        }
+        else if (startDateValid === 0 && endDateValid === 1) {
+            queryUrl = 'https://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + NytSearch + '&facet_fields=source&facet=true&end_date=' + searchEnd + '1231&api-key=HKQZkfUdBhsAbKbMGwTdyQRgGlSGWDfw';
+        }
+        else {
+            queryUrl = 'https://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + NytSearch + '&api-key=HKQZkfUdBhsAbKbMGwTdyQRgGlSGWDfw';
+        }
+
+        console.log('Query url for ajax call: ', queryUrl)
+
+
+        // AJAX call for NYT articles.   Variables for #records retrieved, start year and end year are definied by conditionals in the URL name//
+        $.ajax({
+            url: queryUrl,
+            method: "GET"
+        }).then(function (response) {
+
+            console.log(response)
+
+            $('#search-results').text('Search Results:')
+
+
+            // Creating a div to hold the articles
+            var articleDiv = $("<div class='article'>");
+            for (i = 0; i < recordNumber; i++) {
+                var articleHeadline = response.response.docs[i].headline.main;
+                var articleUrl = response.response.docs[i].web_url;
+                console.log(articleHeadline);
+                // Creating a div to hold the headlines & articles
+                var articleDiv = $("<div class='article'>").text(articleHeadline);
+                $('#search-results').append(articleDiv)
+
+            }
+        });
+
+    }
+</script>
+
+
+</html>
